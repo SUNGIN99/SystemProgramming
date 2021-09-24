@@ -19,12 +19,4 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\..\..\..\Desktop\대학수업\2학년_2학기_시스템프로그래밍실습\과제1차\abc">
-      <Filter>소스 파일</Filter>
-    </None>
-    <None Include="..\..\..\..\..\..\Desktop\대학수업\2학년_2학기_시스템프로그래밍실습\과제1차\HW01.pdf">
-      <Filter>소스 파일</Filter>
-    </None>
-  </ItemGroup>
 </Project>

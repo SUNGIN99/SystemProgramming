@@ -141,10 +141,6 @@
   <ItemGroup>
     <ClCompile Include="20182087_1.c" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\..\..\..\Desktop\대학수업\2학년_2학기_시스템프로그래밍실습\과제1차\abc" />
-    <None Include="..\..\..\..\..\..\Desktop\대학수업\2학년_2학기_시스템프로그래밍실습\과제1차\HW01.pdf" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
