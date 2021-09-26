@@ -1,50 +1,83 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <dirent.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <string.h>
+#define BUFF_SIZE 1000
 
+int arg_n(char *argv) {
+	int num;
+	if (strcmp("-a", argv) == 0) {
+		num = -1;
+	}
 
+	else {
+		num = atoi(argv);
+	}
+	return num;
+}
+//2021.09.26 version 2
 int main(int argc, char *argv[]) {
-	DIR *dp; //디렉토리
-	struct dirent *dirp; //디렉토리 구조체
-	struct stat buf; //파일정보 구조체
-
-	int file = 0, dir = 0, u = 0;
-	char file_path[256]; //파일경로 이름
-
-	if (argc != 2) { 
-		fprintf(stderr, "usage : 20182087_2 directory_name\n");
+	int rfd, n, end = 0, i = 0;
+	int line = 0, line_cnt = 0, read_b = 0;
+	off_t start;
+	char read_all[BUFF_SIZE], buff[BUFF_SIZE];
+	rfd = open("abc2", O_RDONLY);
+	//-------------------------------------------------------------------------------
+	if (rfd == -1) { // read file open err
+		fprintf(stderr, "open_err()\n");
 		exit(1);
 	}
 
-	if ((dp = opendir(argv[1])) == NULL) { //존재하지 않는 파일명 전달시 오류
-		fprintf(stderr, "can't open %s\n", argv[1]);
+	if (argc == 1) { //argument count err (have to be upper than 1)
+		fprintf(stderr, "you have to input -a or integers\n");
 		exit(1);
 	}
 
-	while ((dirp = readdir(dp)) != NULL) {
-		strcpy(file_path, argv[1]); //파일경로 복사
-		if (strcmp(dirp->d_name, ".") == 0 || strcmp(dirp->d_name, "..") == 0) {
-			continue; //부모 디렉토리와 현재 디렉토리 제외
+	//-------------------------------------------------------------------------------
+
+	end = lseek(rfd, 0, SEEK_END); //0 ~ 155 => why 156?
+	printf("offset end : %d\n", end);
+	int cur;
+	n = lseek(rfd, 0, SEEK_SET);
+	//------------------------------------------WTF
+	n = read(rfd, read_all, end);//0 ~ 155 => char buf[156]
+//------------------------------------------WTF
+
+//	printf("read byte : %d\n",n);
+
+	line = arg_n(argv[1]);
+	if (line == -1) {
+		lseek(rfd, 0, SEEK_SET);
+		read_b = end;
+	}
+	else
+	{
+		for (i = end - 1; i >= 0; i--)
+		{
+			if (read_all[i] == '\n')
+			{
+				line_cnt++;
+			}
+			if (line_cnt == line + 1)
+			{
+				//if SEEK_END == '\n' => line +1
+				//if seek_END != '\n' = > line
+				//in this problem SEEK_END == '\n'
+				break;
+			}
+			read_b++; //count how many read
 		}
-		strcat(file_path, "/"); // 파일경로 밑에 디렉토리 이름 설정
-		strcat(file_path, dirp->d_name);// 파일경로 밑에 있는 디렉토리 이름 추가
-		lstat(file_path, &buf);// 파일의 정보를 buf구조체에 저장
-		//printf("%s\n", file_path);
-		//printf("%s : %d\n %o\n\n", file_path, dirp->d_type, buf.st_mode);
-
-		if (S_ISREG(buf.st_mode)) file++; //파일타입이 regular file 일때 개수 증가
-		else if (S_ISDIR(buf.st_mode)) dir++; //파일타입이 directory일때 개수 증가
-		else u++; //unknown type
+		n = lseek(rfd, -read_b, SEEK_END);
 	}
 
-	printf("n dirs : %d\n", dir);
-	printf("n files : %d\n", file);
-	//printf("u : %d\n", u);
-	return 0;
+	//  = OFFSET
 
+	printf("offset :%d\n", n);
+
+	n = read(rfd, buff, read_b);
+	write(1, buff, read_b);
+	printf("line : %d, line_cnt : %d, read_b : %d\n", line, line_cnt, read_b);
+
+	close(rfd);
+	return 0;
 }
